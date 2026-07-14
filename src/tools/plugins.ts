@@ -99,4 +99,16 @@ export function registerPluginTools(server: McpServer, client: FileFlowsClient):
       return { content: [{ type: 'text', text: `Deleted plugins: ${uids.join(', ')}` }] };
     }
   );
+
+  server.tool(
+    'ff_get_plugin_language',
+    'Get localization strings for a plugin in the specified language. Invalid language codes (must match ^[a-zA-Z]{2,3}$) return empty JSON silently.',
+    {
+      langCode: z.string().optional().describe('Two or three-letter language code (default "en")'),
+    },
+    async ({ langCode = 'en' }) => {
+      const data = await client.get(`/api/plugin/language/${encodeURIComponent(langCode)}.json`);
+      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    }
+  );
 }

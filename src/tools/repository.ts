@@ -116,4 +116,29 @@ export function registerRepositoryTools(server: McpServer, client: FileFlowsClie
       return { content: [{ type: 'text', text: `Update initiated for ${uids.length} ${type} item(s)` }] };
     }
   );
+
+  server.tool(
+    'ff_update_specific_repository_scripts',
+    'Update specific installed scripts from the repository by path or UID. Covers FlowScripts, SystemScripts, SharedScripts (WebhookScripts excluded).',
+    {
+      identifiers: z.array(z.string()).describe('Array of script paths or UID strings to update'),
+    },
+    async ({ identifiers }) => {
+      const result = await client.post('/api/repository/update-specific-scripts', { Uids: identifiers });
+      return { content: [{ type: 'text', text: result ? 'Scripts updated' : 'No matching scripts found' }] };
+    }
+  );
+
+  server.tool(
+    'ff_get_repository_item_fields',
+    'Get the form field definitions for a repository item by type and path. Used to understand what configuration fields an item requires.',
+    {
+      type: z.string().describe('"dockermod", "script:flow", "script:system", or "script:webhook"'),
+      item: z.record(z.unknown()).describe('RepositoryObject with a Path field (required)'),
+    },
+    async ({ type, item }) => {
+      const data = await client.post(`/api/repository/${encodeURIComponent(type)}/fields`, item);
+      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    }
+  );
 }

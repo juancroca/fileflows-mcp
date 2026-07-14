@@ -105,4 +105,79 @@ export function registerSystemTools(server: McpServer, client: FileFlowsClient):
       return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
     }
   );
+
+  server.tool(
+    'ff_get_language',
+    'Get the list of available UI languages',
+    {},
+    async () => {
+      const data = await client.get('/api/language');
+      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    'ff_get_meta_info',
+    'Get metadata information for a file by its MetaInfo UID (a string identifier, not a GUID). Returns null when unlicensed.',
+    {
+      uid: z.string().describe('MetaInfo identifier string'),
+    },
+    async ({ uid }) => {
+      const data = await client.get(`/api/meta-info/${encodeURIComponent(uid)}`);
+      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    'ff_get_node_update_version',
+    'Get the version of the node updater binary available for download',
+    {},
+    async () => {
+      const data = await client.get('/api/system/node-update-version');
+      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    'ff_is_node_updater_available',
+    'Check whether a node updater binary is available for download',
+    {},
+    async () => {
+      const data = await client.get('/api/system/node-updater-available');
+      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    'ff_browse_files',
+    'Browse the FileFlows server file system. Pass "ROOT" as start to list drives. Pass a path to list its contents. Returns directory entries including a parent entry for navigation.',
+    {
+      start: z.string().optional().describe('Starting path. Use "ROOT" for root drives, omit to start at default directory.'),
+      includeFiles: z.boolean().optional().describe('When true, include files in results (default false — directories only)'),
+      extensions: z.array(z.string()).optional().describe('File extension filter (e.g. ["mkv","mp4"]). Empty means no filter.'),
+    },
+    async ({ start, includeFiles = false, extensions = [] }) => {
+      const params = new URLSearchParams({ includeFiles: String(includeFiles) });
+      if (start) params.set('start', start);
+      extensions.forEach(ext => params.append('extensions', ext));
+      const data = await client.get(`/api/file-browser?${params}`);
+      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    'ff_get_file_integrations',
+    'Get integration data (Emby/Plex metadata) for a file by MetaId or path',
+    {
+      metaId: z.string().optional().describe('MetaID (e.g. "tmdb-12345")'),
+      path: z.string().optional().describe('File path for fallback lookup'),
+    },
+    async ({ metaId, path }) => {
+      const body: Record<string, unknown> = {};
+      if (metaId) body['MetaId'] = metaId;
+      if (path) body['Path'] = path;
+      const data = await client.post('/api/library-file/integrations', body);
+      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    }
+  );
 }

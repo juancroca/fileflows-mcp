@@ -248,4 +248,14 @@ export function registerFileTools(server: McpServer, client: FileFlowsClient): v
       return { content: [{ type: 'text', text: 'Process options updated' }] };
     }
   );
+
+  server.tool(
+    'ff_get_file_server_log',
+    'Get the server-side log for a library file. Returns plain text. Errors are swallowed and returned as plain-text strings inside an HTTP 200 body.',
+    { uid: z.string().describe('Library file UID') },
+    async ({ uid }) => {
+      const text = await client.getText(`/api/library-file/${uid}/server-log`);
+      return { content: [{ type: 'text', text: text }] };
+    }
+  );
 }

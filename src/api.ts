@@ -8,7 +8,8 @@ export class FileFlowsClient {
   async get<T>(path: string): Promise<T> {
     const res = await fetch(`${this.baseUrl}${path}`);
     if (!res.ok) throw new Error(`GET ${path} → ${res.status}: ${await res.text()}`);
-    return res.json() as Promise<T>;
+    const text = await res.text();
+    return text ? (JSON.parse(text) as T) : (undefined as unknown as T);
   }
 
   async getText(path: string): Promise<string> {

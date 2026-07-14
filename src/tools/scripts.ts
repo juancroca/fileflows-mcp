@@ -114,4 +114,21 @@ export function registerScriptTools(server: McpServer, client: FileFlowsClient):
       return { content: [{ type: 'text', text: `Deleted scripts: ${uids.join(', ')}` }] };
     }
   );
+
+  server.tool(
+    'ff_import_script',
+    'Import a script from JavaScript code. The filename becomes the script name (minus .js extension). The type is set from the query param. Repository, Path, and Uid are always reset server-side — caller cannot control them.',
+    {
+      code: z.string().describe('JavaScript script code to import'),
+      filename: z.string().describe('Script filename (e.g. "MyScript.js") — used as the name, .js suffix stripped'),
+      type: z.number().int().describe('ScriptType: 0=Flow, 1=System, 2=Shared, 3=Webhook'),
+    },
+    async ({ code, filename, type }) => {
+      const data = await client.post(
+        `/api/script/import?filename=${encodeURIComponent(filename)}&type=${type}`,
+        code
+      );
+      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    }
+  );
 }

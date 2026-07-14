@@ -33,6 +33,16 @@ export function registerUserTools(server: McpServer, client: FileFlowsClient): v
   );
 
   server.tool(
+    'ff_get_user',
+    'Get a specific user by UID. Password is masked as 14 asterisks. This endpoint is SwaggerIgnore — not in generated API docs but exists in source.',
+    { uid: z.string().describe('User UID') },
+    async ({ uid }) => {
+      const data = await client.get(`/api/user/${uid}`);
+      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    }
+  );
+
+  server.tool(
     'ff_delete_users',
     'Delete one or more FileFlows users. Cannot delete your own account.',
     { uids: z.array(z.string()).describe('Array of user UIDs to delete') },
