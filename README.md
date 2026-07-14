@@ -11,6 +11,7 @@ MCP server for [FileFlows](https://fileflows.com) — exposes the FileFlows REST
 | `ff_list_libraries` | List all libraries with status |
 | `ff_get_library` | Get details of a specific library |
 | `ff_create_library` | Create a new library (path, flow, optional extensions) |
+| `ff_update_library` | Update an existing library (pass the full modified library object) |
 | `ff_delete_library` | Delete one or more libraries by UID |
 | `ff_set_library_enabled` | Enable or disable a library |
 | `ff_rescan_library` | Trigger a file-system rescan on specific libraries |
@@ -24,6 +25,8 @@ MCP server for [FileFlows](https://fileflows.com) — exposes the FileFlows REST
 | `ff_list_flows` | List all processing flows |
 | `ff_get_flow` | Get a flow including all nodes and connections |
 | `ff_update_flow` | Update a flow (pass the full modified flow object) |
+| `ff_set_flow_enabled` | Enable or disable a flow |
+| `ff_delete_flow` | Delete one or more flows by UID |
 | `ff_list_flow_elements` | List all available node types with their schemas |
 
 ### Files
@@ -36,6 +39,11 @@ MCP server for [FileFlows](https://fileflows.com) — exposes the FileFlows REST
 | `ff_get_file` | Get full file details including metadata, executed nodes, and failure reason |
 | `ff_get_file_log` | Get the processing log for a file |
 | `ff_reprocess_files` | Requeue one or more files for processing |
+| `ff_set_file_status` | Force-set the status of one or more files |
+| `ff_abort_files` | Abort currently-processing files |
+| `ff_move_to_top` | Move files to the top of the processing queue |
+| `ff_unhold_files` | Release OnHold files back to Unprocessed |
+| `ff_delete_files` | Remove files from the queue (does not delete from disk) |
 
 ### System
 
@@ -43,6 +51,7 @@ MCP server for [FileFlows](https://fileflows.com) — exposes the FileFlows REST
 |---|---|
 | `ff_get_status` | Live queue depth and currently processing files |
 | `ff_get_node_overview` | Status of all processing nodes |
+| `ff_get_version` | Get the FileFlows server version |
 
 ### File status codes
 

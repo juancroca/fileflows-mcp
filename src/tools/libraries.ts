@@ -98,4 +98,52 @@ export function registerLibraryTools(server: McpServer, client: FileFlowsClient)
       return { content: [{ type: 'text', text: `Reset triggered for libraries: ${uids.join(', ')}` }] };
     }
   );
+
+  server.tool(
+    'ff_update_library',
+    'Update an existing FileFlows library. Fetch the current library with ff_get_library, apply your changes, then pass the full object here. The Schedule field is always injected automatically to avoid a server-side null-reference error.',
+    { library: z.record(z.unknown()).describe('Complete library object with modifications applied (from ff_get_library)') },
+    async ({ library }) => {
+      const body = { ...library, Schedule: SCHEDULE_ALL };
+      const data = await client.post('/api/library', body);
+      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    'ff_get_library_list',
+    'Get a slim list of all libraries (Uid, Name, basic metadata — no Schedule). Cheaper than ff_list_libraries.',
+    {},
+    async () => {
+      const data = await client.get('/api/library/list');
+      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    'ff_duplicate_library',
+    'Duplicate a library. The duplicate is created disabled with a unique name and a reset last-scan timestamp. Cannot duplicate the Manual Library.',
+    { uid: z.string().describe('Library UID to duplicate') },
+    async ({ uid }) => {
+      const data = await client.post(`/api/library/duplicate/${uid}`);
+      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    'ff_migrate_library',
+    'Migrate a library to a new path. Updates the path and optionally the output path.',
+    {
+      uid: z.string().describe('Library UID to migrate'),
+      destination: z.string().describe('New destination path for the library'),
+      updateOutputPath: z.boolean().optional().describe('When true, also update the output path (default false)'),
+    },
+    async ({ uid, destination, updateOutputPath = false }) => {
+      const data = await client.post(
+        `/api/library/migrate/${uid}?updateOutputPath=${updateOutputPath}`,
+        destination
+      );
+      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    }
+  );
 }

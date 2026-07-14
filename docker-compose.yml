@@ -1,0 +1,13 @@
+services:
+  fileflows-mcp:
+    build: .
+    image: fileflows-mcp:latest
+    container_name: fileflows-mcp
+    restart: unless-stopped
+    ports:
+      - "5051:3000"
+    environment:
+      - FILEFLOWS_URL=http://host.docker.internal:5050
+      - PORT=3000
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
